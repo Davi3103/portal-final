@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Compras — Relatórios</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg:#f0f3f5; --surface:#fff; --surface2:#f4f7f9; --border:#dde3ea;
+  --accent:#009B77; --accent2:#E07B3A; --accent3:#1F75BB;
+  --gray:#6D6E71; --text:#1a2535; --muted:#7a8899;
+  --danger:#e05252; --success:#4ecb8d; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+header{background:#fff;border-bottom:3px solid var(--accent);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.header-left{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.brand{font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;color:var(--text);}
+.brand span{color:var(--accent);}
+.hbadge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;}
+.hbadge2{background:var(--accent3);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:1px;}
+.header-right{display:flex;align-items:center;gap:14px;}
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:5px 12px 5px 6px;cursor:pointer;}
+.avatar{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:11px;color:#fff;}
+.uname{font-size:11px;font-weight:700;color:var(--text);}
+.urole{font-size:10px;color:var(--muted);}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 64px);}
+
+/* SIDEBAR */
+.sidebar{background:#fff;border-right:1px solid var(--border);padding:16px 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;display:flex;flex-direction:column;}
+.sb-section{padding:0 12px 8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-top:12px;}
+.sb-section:first-child{margin-top:0;}
+
+/* Filters block */
+.filter-block{padding:0 12px 12px;}
+.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px;display:block;}
+.filter-input,.filter-select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s;}
+.filter-input:focus,.filter-select:focus{border-color:var(--accent);}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.btn-apply{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;transition:background .15s;}
+.btn-apply:hover{background:#007A5E;}
+.btn-clear{width:100%;background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:7px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:5px;transition:all .15s;}
+.btn-clear:hover{border-color:var(--accent3);color:var(--accent3);}
+.sb-divider{height:1px;background:var(--border);margin:8px 12px;}
+
+/* Report nav */
+.rep-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);border-left:3px solid transparent;transition:all .13s;}
+.rep-item:hover{background:rgba(0,155,119,.04);color:var(--text);}
+.rep-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(0,155,119,.07);font-weight:700;}
+.rep-icon{font-size:15px;width:18px;text-align:center;}
+
+/* MAIN */
+.main{padding:24px 28px 48px;overflow-x:hidden;}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:box-shadow .18s,transform .18s;}
+.kpi-card:hover{box-shadow:0 6px 18px rgba(0,0,0,.09);transform:translateY(-2px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.k-green::before{background:var(--accent);}
+.kpi-card.k-blue::before{background:var(--accent3);}
+.kpi-card.k-orange::before{background:var(--accent2);}
+.kpi-card.k-red::before{background:var(--danger);}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;}
+.kpi-val{font-family:'Nunito',sans-serif;font-weight:900;font-size:32px;line-height:1;margin-bottom:4px;}
+.kpi-card.k-green .kpi-val{color:var(--accent);}
+.kpi-card.k-blue .kpi-val{color:var(--accent3);}
+.kpi-card.k-orange .kpi-val{color:var(--accent2);}
+.kpi-card.k-red .kpi-val{color:var(--danger);}
+.kpi-sub{font-size:11px;color:var(--muted);}
+.kpi-icon{position:absolute;bottom:10px;right:14px;font-size:26px;opacity:.1;}
+
+/* SECTION TITLE */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sec-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:17px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.sec-actions{display:flex;gap:8px;}
+.btn-export{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-export:hover{border-color:var(--accent);color:var(--accent);}
+.btn-export.excel:hover{border-color:#217346;color:#217346;}
+.btn-print{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-print:hover{border-color:var(--accent3);color:var(--accent3);}
+.rec-count{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-weight:600;}
+
+/* CHARTS GRID */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.chart-card.full{grid-column:1/-1;}
+.chart-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.chart-wrap{position:relative;height:200px;}
+.chart-wrap.tall{height:240px;}
+
+/* TABLE */
+.table-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.table-toolbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.tbl-search{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;font-size:12px;font-family:inherit;color:var(--text);outline:none;transition:border-color .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237a8899' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center;}
+.tbl-search:focus{border-color:var(--accent);}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--surface2);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--accent);}
+thead th.sort-asc::after{content:' ↑';}
+thead th.sort-desc::after{content:' ↓';}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:10px 14px;font-size:12px;color:var(--text);white-space:nowrap;}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;}
+.b-pend{background:rgba(224,123,58,.13);color:var(--accent2);}
+.b-aprov{background:rgba(0,155,119,.13);color:var(--accent);}
+.b-anali{background:rgba(31,117,187,.13);color:var(--accent3);}
+.b-recus{background:rgba(224,82,82,.13);color:var(--danger);}
+.b-ativo{background:rgba(0,155,119,.13);color:var(--accent);}
+.b-inat{background:rgba(109,110,113,.12);color:var(--gray);}
+.tbl-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);}
+.page-btns{display:flex;gap:4px;}
+.pbn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;color:var(--muted);font-family:inherit;}
+.pbn:hover,.pbn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* EMPTY STATE */
+.empty-state{padding:48px;text-align:center;color:var(--muted);}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4;}
+
+/* CROSS TABLE */
+.cross-tbl th{font-size:10px;}
+.cross-tbl .ct-dest{max-width:120px;overflow:hidden;text-overflow:ellipsis;}
+.cross-tbl .ct-num{text-align:center;font-weight:700;font-family:'Nunito',sans-serif;}
+.cross-tbl .ct-zero{color:var(--border);}
+.bar-cell{position:relative;}
+.bar-fill{display:inline-block;height:12px;border-radius:3px;vertical-align:middle;margin-right:6px;}
+
+/* VIEW TOGGLE */
+.view-toggle{display:none;}
+.view-section{display:none;}
+.view-section.active{display:block;}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;right:28px;background:#1a2535;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;}
+#toast.show{opacity:1;transform:translateY(0);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.kpi-row{animation:fadeUp .35s ease both;}
+.charts-grid{animation:fadeUp .35s .08s ease both;}
+.table-card{animation:fadeUp .35s .14s ease both;}
+
+@media print{
+  header,.sidebar,.sec-actions,.table-toolbar .btn-export,.table-toolbar .btn-print{display:none!important;}
+  .layout{display:block;}
+  .main{padding:0;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">📊</div>
+    <div>
+      <div class="brand">Portal de <span>Compras</span></div>
+    </div>
+    <span class="hbadge">v2.0</span>
+    <span class="hbadge2">Relatórios</span>
+  </div>
+  <div class="header-right">
+    <button class="back-btn" onclick="window.location.href='menu.html'">← Menu Principal</button>
+    <div class="user-pill">
+      <div class="avatar">JM</div>
+      <div>
+        <div class="uname">João Mendes</div>
+        <div class="urole">Administrador</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-section">Período</div>
+  <div class="filter-block">
+    <label class="filter-label">De</label>
+    <div class="filter-row">
+      <input class="filter-input" type="date" id="f-de" value="2026-01-01">
+      <input class="filter-input" type="date" id="f-ate" value="2026-05-31">
+    </div>
+    <label class="filter-label">Unidade</label>
+    <select class="filter-select" id="f-unid" style="margin-bottom:8px">
+      <option value="">Todas</option>
+    </select>
+    <label class="filter-label">Destino</label>
+    <select class="filter-select" id="f-dest" style="margin-bottom:8px">
+      <option value="">Todos</option>
+    </select>
+    <label class="filter-label">Comprador</label>
+    <select class="filter-select" id="f-comp" style="margin-bottom:8px">
+      <option value="">Todos</option>
+    </select>
+    <label class="filter-label">Status</label>
+    <select class="filter-select" id="f-status" style="margin-bottom:10px">
+      <option value="">Todos</option>
+      <option>Pendente</option>
+      <option>Em análise</option>
+      <option>Aprovado</option>
+      <option>Recusado</option>
+    </select>
+    <button class="btn-apply" onclick="applyFilters()">Aplicar Filtros</button>
+    <button class="btn-clear" onclick="clearFilters()">Limpar</button>
+  </div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Relatórios</div>
+
+  <div class="rep-item active" id="nav-dashboard" onclick="showView('dashboard')">
+    <span class="rep-icon">🏠</span> Dashboard Geral
+  </div>
+  <div class="rep-item" id="nav-usuarios" onclick="showView('usuarios')">
+    <span class="rep-icon">👥</span> Usuários
+  </div>
+  <div class="rep-item" id="nav-unidades" onclick="showView('unidades')">
+    <span class="rep-icon">🏢</span> Unidades
+  </div>
+  <div class="rep-item" id="nav-destino" onclick="showView('destino')">
+    <span class="rep-icon">📍</span> Destino de Solicitação
+  </div>
+  <div class="rep-item" id="nav-por-usuario" onclick="showView('por-usuario')">
+    <span class="rep-icon">📋</span> Lanç. por Usuário
+  </div>
+  <div class="rep-item" id="nav-por-destino" onclick="showView('por-destino')">
+    <span class="rep-icon">📌</span> Lanç. por Destino
+  </div>
+  <div class="rep-item" id="nav-prod-destino" onclick="showView('prod-destino')">
+    <span class="rep-icon">🔀</span> Produto × Destino
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="main-area">
+
+  <!-- ─── DASHBOARD ─────────────────────────────────── -->
+  <div class="view-section active" id="view-dashboard">
+
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">📊 Solicitações por Status</div>
+        <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📅 Evolução Mensal</div>
+        <div class="chart-wrap"><canvas id="chart-mensal"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🏢 Top Unidades Solicitantes</div>
+        <div class="chart-wrap"><canvas id="chart-unidades"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📦 Solicitações por Categoria</div>
+        <div class="chart-wrap"><canvas id="chart-categorias"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <div class="chart-title">📍 Top Destinos</div>
+        <div class="chart-wrap tall"><canvas id="chart-destinos"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── USUÁRIOS ──────────────────────────────────── -->
+  <div class="view-section" id="view-usuarios">
+    <div class="sec-header">
+      <div class="sec-title">👥 Relatório — Usuários</div>
+      <div class="sec-actions">
+        <span class="rec-count" id="cnt-usuarios">0 registros</span>
+        <button class="btn-export excel" onclick="exportExcel('usuarios')">📥 Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input class="tbl-search" placeholder="Buscar usuário..." oninput="tblSearch('tbl-usuarios',this.value)">
+      </div>
+      <div class="tbl-wrap"><table id="tbl-usuarios">
+        <thead><tr>
+          <th onclick="sortTable('tbl-usuarios',0)">ID</th>
+          <th onclick="sortTable('tbl-usuarios',1)">Nome</th>
+          <th onclick="sortTable('tbl-usuarios',2)">E-mail</th>
+          <th onclick="sortTable('tbl-usuarios',3)">Perfil</th>
+          <th onclick="sortTable('tbl-usuarios',4)">Solicitações</th>
+          <th onclick="sortTable('tbl-usuarios',5)">Aprovadas</th>
+          <th onclick="sortTable('tbl-usuarios',6)">Pendentes</th>
+          <th onclick="sortTable('tbl-usuarios',7)">Situação</th>
+        </tr></thead>
+        <tbody id="tbody-usuarios"></tbody>
+      </table></div>
+      <div class="tbl-footer"><span id="foot-usuarios">—</span><div class="page-btns" id="pages-usuarios"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── UNIDADES ──────────────────────────────────── -->
+  <div class="view-section" id="view-unidades">
+    <div class="sec-header">
+      <div class="sec-title">🏢 Relatório — Unidades</div>
+      <div class="sec-actions">
+        <span class="rec-count" id="cnt-unidades">0 registros</span>
+        <button class="btn-export excel" onclick="exportExcel('unidades')">📥 Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input class="tbl-search" placeholder="Buscar unidade..." oninput="tblSearch('tbl-unidades',this.value)">
+      </div>
+      <div class="tbl-wrap"><table id="tbl-unidades">
+        <thead><tr>
+          <th onclick="sortTable('tbl-unidades',0)">Código</th>
+          <th onclick="sortTable('tbl-unidades',1)">Nome</th>
+          <th onclick="sortTable('tbl-unidades',2)">Total Solicit.</th>
+          <th onclick="sortTable('tbl-unidades',3)">Aprovadas</th>
+          <th onclick="sortTable('tbl-unidades',4)">Pendentes</th>
+          <th onclick="sortTable('tbl-unidades',5)">Recusadas</th>
+          <th onclick="sortTable('tbl-unidades',6)">Situação</th>
+        </tr></thead>
+        <tbody id="tbody-unidades"></tbody>
+      </table></div>
+      <div class="tbl-footer"><span id="foot-unidades">—</span><div class="page-btns" id="pages-unidades"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── DESTINO ───────────────────────────────────── -->
+  <div class="view-section" id="view-destino">
+    <div class="sec-header">
+      <div class="sec-title">📍 Relatório — Destino de Solicitação</div>
+      <div class="sec-actions">
+        <span class="rec-count" id="cnt-destino">0 registros</span>
+        <button class="btn-export excel" onclick="exportExcel('destino')">📥 Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input class="tbl-search" placeholder="Buscar destino..." oninput="tblSearch('tbl-destino',this.value)">
+      </div>
+      <div class="tbl-wrap"><table id="tbl-destino">
+        <thead><tr>
+          <th onclick="sortTable('tbl-destino',0)">Código</th>
+          <th onclick="sortTable('tbl-destino',1)">Destino</th>
+          <th onclick="sortTable('tbl-destino',2)">Total Solicit.</th>
+          <th onclick="sortTable('tbl-destino',3)">Aprovadas</th>
+          <th onclick="sortTable('tbl-destino',4)">Em análise</th>
+          <th onclick="sortTable('tbl-destino',5)">Pendentes</th>
+          <th onclick="sortTable('tbl-destino',6)">Recusadas</th>
+          <th onclick="sortTable('tbl-destino',7)">Situação</th>
+        </tr></thead>
+        <tbody id="tbody-destino"></tbody>
+      </table></div>
+      <div class="tbl-footer"><span id="foot-destino">—</span><div class="page-btns" id="pages-destino"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── LANÇ. POR USUÁRIO ─────────────────────────── -->
+  <div class="view-section" id="view-por-usuario">
+    <div class="sec-header">
+      <div class="sec-title">📋 Lanç. por Usuário</div>
+      <div class="sec-actions">
+        <span class="rec-count" id="cnt-por-usuario">0 registros</span>
+        <button class="btn-export excel" onclick="exportExcel('por-usuario')">📥 Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input class="tbl-search" placeholder="Buscar..." oninput="tblSearch('tbl-por-usuario',this.value)">
+      </div>
+      <div class="tbl-wrap"><table id="tbl-por-usuario">
+        <thead><tr>
+          <th onclick="sortTable('tbl-por-usuario',0)">Nº</th>
+          <th onclick="sortTable('tbl-por-usuario',1)">Data</th>
+          <th onclick="sortTable('tbl-por-usuario',2)">Solicitante</th>
+          <th onclick="sortTable('tbl-por-usuario',3)">Unidade</th>
+          <th onclick="sortTable('tbl-por-usuario',4)">Destino</th>
+          <th onclick="sortTable('tbl-por-usuario',5)">Comprador</th>
+          <th onclick="sortTable('tbl-por-usuario',6)">Itens</th>
+          <th onclick="sortTable('tbl-por-usuario',7)">Status</th>
+        </tr></thead>
+        <tbody id="tbody-por-usuario"></tbody>
+      </table></div>
+      <div class="tbl-footer"><span id="foot-por-usuario">—</span><div class="page-btns" id="pages-por-usuario"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── LANÇ. POR DESTINO ─────────────────────────── -->
+  <div class="view-section" id="view-por-destino">
+    <div class="sec-header">
+      <div class="sec-title">📌 Lanç. por Destino</div>
+      <div class="sec-actions">
+        <span class="rec-count" id="cnt-por-destino">0 registros</span>
+        <button class="btn-export excel" onclick="exportExcel('por-destino')">📥 Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input class="tbl-search" placeholder="Buscar..." oninput="tblSearch('tbl-por-destino',this.value)">
+      </div>
+      <div class="tbl-wrap"><table id="tbl-por-destino">
+        <thead><tr>
+          <th onclick="sortTable('tbl-por-destino',0)">Nº</th>
+          <th onclick="sortTable('tbl-por-destino',1)">Data</th>
+          <th onclick="sortTable('tbl-por-destino',2)">Destino</th>
+          <th onclick="sortTable('tbl-por-destino',3)">Solicitante</th>
+          <th onclick="sortTable('tbl-por-destino',4)">Unidade</th>
+          <th onclick="sortTable('tbl-por-destino',5)">Comprador</th>
+          <th onclick="sortTable('tbl-por-destino',6)">Itens</th>
+          <th onclick="sortTable('tbl-por-destino',7)">Status</th>
+        </tr></thead>
+        <tbody id="tbody-por-destino"></tbody>
+      </table></div>
+      <div class="tbl-footer"><span id="foot-por-destino">—</span><div class="page-btns" id="pages-por-destino"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── PRODUTO × DESTINO ─────────────────────────── -->
+  <div class="view-section" id="view-prod-destino">
+    <div class="sec-header">
+      <div class="sec-title">🔀 Produto × Destino</div>
+      <div class="sec-actions">
+        <span class="rec-count" id="cnt-prod-destino">0 registros</span>
+        <button class="btn-export excel" onclick="exportExcel('prod-destino')">📥 Excel</button>
+        <button class="btn-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input class="tbl-search" placeholder="Buscar produto..." oninput="tblSearch('tbl-prod-destino',this.value)">
+      </div>
+      <div class="tbl-wrap"><table id="tbl-prod-destino">
+        <thead><tr>
+          <th onclick="sortTable('tbl-prod-destino',0)">Código</th>
+          <th onclick="sortTable('tbl-prod-destino',1)">Produto</th>
+          <th onclick="sortTable('tbl-prod-destino',2)">Categoria</th>
+          <th onclick="sortTable('tbl-prod-destino',3)">Unid.</th>
+          <th onclick="sortTable('tbl-prod-destino',4)">Destino</th>
+          <th onclick="sortTable('tbl-prod-destino',5)">Qtd. Total</th>
+          <th onclick="sortTable('tbl-prod-destino',6)">Solicitações</th>
+          <th onclick="sortTable('tbl-prod-destino',7)">Último Lanç.</th>
+        </tr></thead>
+        <tbody id="tbody-prod-destino"></tbody>
+      </table></div>
+      <div class="tbl-footer"><span id="foot-prod-destino">—</span><div class="page-btns" id="pages-prod-destino"></div></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// REFERENCE DATA
+// ─────────────────────────────────────────────────────────────────
+const UNIDADES = [
+  {codigo:'408',nome:'AGGE SERVICOS TERCEIRIZADOS LT'},
+  {codigo:'3',  nome:'AGGE SERVIÇOS'},
+  {codigo:'1',  nome:'APPA SERVICOS TEMPORARIOS'},
+  {codigo:'403',nome:'APPA SERVICOS TEMPORARIOS - BA'},
+  {codigo:'5',  nome:'APPA SERVICOS TEMPORARIOS - MG'},
+  {codigo:'404',nome:'APPA SERVICOS TEMPORARIOS - MT'},
+  {codigo:'402',nome:'APPA SERVICOS TEMPORARIOS - PE'},
+  {codigo:'401',nome:'APPA SERVICOS TEMPORARIOS - PR'},
+  {codigo:'4',  nome:'APPA SERVICOS TEMPORARIOS - RJ'},
+  {codigo:'406',nome:'APPA SERVICOS TEMPORARIOS - SC'},
+  {codigo:'412',nome:'APPA SERVICOS TEMPORARIOS E EF'},
+  {codigo:'405',nome:'APPA SERVICOS TEMPORARIOS-SUZ'}
+];
+
+const DESTINOS = [
+  {codigo:'408', nome:'AGGE SERVICOS TERCEIRIZADOS LT'},
+  {codigo:'3',   nome:'AGGE SERVIÇOS'},
+  {codigo:'1',   nome:'APPA SERVICOS TEMPORARIOS'},
+  {codigo:'403', nome:'APPA SERVICOS TEMPORARIOS - BA'},
+  {codigo:'5',   nome:'APPA SERVICOS TEMPORARIOS - MG'},
+  {codigo:'404', nome:'APPA SERVICOS TEMPORARIOS - MT'},
+  {codigo:'402', nome:'APPA SERVICOS TEMPORARIOS - PE'},
+  {codigo:'401', nome:'APPA SERVICOS TEMPORARIOS - PR'},
+  {codigo:'4',   nome:'APPA SERVICOS TEMPORARIOS - RJ'},
+  {codigo:'406', nome:'APPA SERVICOS TEMPORARIOS - SC'},
+  {codigo:'412', nome:'APPA SERVICOS TEMPORARIOS E EF'},
+  {codigo:'405', nome:'APPA SERVICOS TEMPORARIOS-SUZ'},
+  {codigo:'1013',nome:'CODEVASF 614'},
+  {codigo:'1008',nome:'FIOCRUZ RJ 360'},
+  {codigo:'1004',nome:'FPMZB MG 438'},
+  {codigo:'1001',nome:'FUNDACENTRO MG 452'},
+  {codigo:'1010',nome:'FUNDACENTRO SP 457'},
+  {codigo:'1006',nome:'FUNDAÇÃO SAUDE RJ 2028'},
+  {codigo:'1002',nome:'HOSPITAL ODILON MG 238'},
+  {codigo:'1012',nome:'IF SALTO SP 609'},
+  {codigo:'1009',nome:'PRF SP 447'},
+  {codigo:'1011',nome:'RAYFLEX SP 603'},
+  {codigo:'1005',nome:'RIBEIRÃO DAS NEVES MG 2089'},
+  {codigo:'1000',nome:'SEBRAE MG 2099'},
+  {codigo:'1007',nome:'TJ NUR RJ 469'},
+  {codigo:'1003',nome:'TRT MG 449'},
+  {codigo:'1014',nome:'ZOOLOGICO MG 679'}
+];
+
+const COMPRADORES = [
+  {codigo:'359915',     nome:'THAIS CAMARGO'},
+  {codigo:'359975',     nome:'DANIELA DOS SANTOS VIEIRA'},
+  {codigo:'37935129835',nome:'WENDEL GALVINO'},
+  {codigo:'38388870858',nome:'KARLA RAFAELA DA SILVA SANTOS'},
+  {codigo:'41209480808',nome:'ROGERIO LIMA DE SOUZA'}
+];
+
+const USUARIOS_LIST = [
+  {id:1, nome:'Admin Sistema',     email:'admin@appa.com.br',    perfil:'Administrador'},
+  {id:2, nome:'João Silva',        email:'joao@appa.com.br',     perfil:'Solicitante'},
+  {id:3, nome:'Maria Souza',       email:'maria@appa.com.br',    perfil:'Comprador'},
+  {id:4, nome:'Carlos Pereira',    email:'carlos@appa.com.br',   perfil:'Solicitante'},
+  {id:5, nome:'Ana Rodrigues',     email:'ana@appa.com.br',      perfil:'Solicitante'},
+  {id:6, nome:'Pedro Lima',        email:'pedro@appa.com.br',    perfil:'Aprovador'},
+  {id:7, nome:'Fernanda Costa',    email:'fernanda@appa.com.br', perfil:'Solicitante'},
+  {id:8, nome:'Ricardo Alves',     email:'ricardo@appa.com.br',  perfil:'Comprador'}
+];
+
+const CATEGORIAS_LIST = [
+  'EPI','EPC / UNIFORMES','EQUIPAMENTOS/MÁQUINAS','SERVIÇOS - UNIFORMES',
+  'MÁQUINAS E ACESSÓRIOS 2','CAMISETA/CAMISA','BLUSA / CARDIGAN',
+  'BLAZER/PALETÓ/JAQUETA','CALÇA','MEIA','CALÇADOS','GRAVATA','CINTO','AVENTAL'
+];
+
+const PRODUTOS_SAMPLE = [
+  {codigo:'1010101000',nome:'LUVA LATEX AMARELA TAM P',  cat:'EPI',                   unid:'PR'},
+  {codigo:'1010158000',nome:'LUVA NITRILICA M',           cat:'EPI',                   unid:'PR'},
+  {codigo:'1020127000',nome:'CONE LARANJA E BRANCO 75CM', cat:'EPC / UNIFORMES',       unid:'UN'},
+  {codigo:'1020138002',nome:'CAMISA ALGODÃO M/C AZ. G',   cat:'EPC / UNIFORMES',       unid:'UN'},
+  {codigo:'1040122000',nome:'ASPIRADOR VERTICAL',         cat:'EQUIPAMENTOS/MÁQUINAS', unid:'UN'},
+  {codigo:'1040134000',nome:'FOICE',                      cat:'EQUIPAMENTOS/MÁQUINAS', unid:'UN'},
+  {codigo:'1050102000',nome:'SILK SCREEN',                cat:'SERVIÇOS - UNIFORMES',  unid:'UN'},
+  {codigo:'1050201002',nome:'SERVIÇO DE LAVANDERIA',      cat:'SERVIÇOS - UNIFORMES',  unid:'UN'},
+  {codigo:'1120301000',nome:'CAMISA POLO MC CINZA P',     cat:'CAMISETA/CAMISA',       unid:'UN'},
+  {codigo:'1120109002',nome:'CAMISETA MC AZ. MARINHO G',  cat:'CAMISETA/CAMISA',       unid:'UN'},
+  {codigo:'1130201000',nome:'CARDIGAN PRETO MASCULINO P', cat:'BLUSA / CARDIGAN',      unid:'UN'},
+  {codigo:'1140101000',nome:'BLAZER FEM. PRETO PP/36',    cat:'BLAZER/PALETÓ/JAQUETA', unid:'UN'},
+  {codigo:'1150101000',nome:'CALCA BRIM CINZA SEM BOLSO', cat:'CALÇA',                 unid:'UN'},
+  {codigo:'1160101001',nome:'MEIA SOCIAL MASCULINA',      cat:'MEIA',                  unid:'UN'},
+  {codigo:'1170102002',nome:'SAPATO SOCIAL FEMINIO 35',   cat:'CALÇADOS',              unid:'UN'},
+  {codigo:'1180101000',nome:'GRAVATA PRETA',              cat:'GRAVATA',               unid:'UN'},
+  {codigo:'1190101001',nome:'CINTO MASCULINO M',          cat:'CINTO',                 unid:'UN'},
+  {codigo:'1210101002',nome:'AVENTAL ML BRANCO G',        cat:'AVENTAL',               unid:'UN'}
+];
+
+const STATUS_LIST = ['Pendente','Em análise','Aprovado','Aprovado','Aprovado','Recusado'];
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// Dados carregados da API (banco MySQL)
+var ALL_SOLIC = [];
+
+// ─────────────────────────────────────────────────────────────────
+// FILTER STATE
+// ─────────────────────────────────────────────────────────────────
+var FILTER = {de:'2026-01-01',ate:'2026-05-31',unid:'',dest:'',comp:'',status:''};
+var ACTIVE_VIEW = 'dashboard';
+var SORT_STATE = {};
+var PAGE_STATE = {};
+
+function filteredSolic(){
+  return ALL_SOLIC.filter(function(s){
+    if(FILTER.de  && s.data < FILTER.de)  return false;
+    if(FILTER.ate && s.data > FILTER.ate) return false;
+    if(FILTER.unid   && s.unidCodigo !== FILTER.unid)   return false;
+    if(FILTER.dest   && s.destCodigo !== FILTER.dest)   return false;
+    if(FILTER.comp   && s.comprador  !== FILTER.comp)   return false;
+    if(FILTER.status && s.status     !== FILTER.status) return false;
+    return true;
+  });
+}
+
+function applyFilters(){
+  FILTER.de     = document.getElementById('f-de').value;
+  FILTER.ate    = document.getElementById('f-ate').value;
+  FILTER.unid   = document.getElementById('f-unid').value;
+  FILTER.dest   = document.getElementById('f-dest').value;
+  FILTER.comp   = document.getElementById('f-comp').value;
+  FILTER.status = document.getElementById('f-status').value;
+  renderAll();
+  showToast('Filtros aplicados — '+filteredSolic().length+' solicitações');
+}
+function clearFilters(){
+  FILTER={de:'2026-01-01',ate:'2026-05-31',unid:'',dest:'',comp:'',status:''};
+  document.getElementById('f-de').value='2026-01-01';
+  document.getElementById('f-ate').value='2026-05-31';
+  ['f-unid','f-dest','f-comp','f-status'].forEach(function(id){document.getElementById(id).value='';});
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// POPULATE SIDEBAR SELECTS
+// ─────────────────────────────────────────────────────────────────
+(function(){
+  var su=document.getElementById('f-unid');
+  UNIDADES.forEach(function(u){su.innerHTML+='<option value="'+u.codigo+'">'+u.nome+'</option>';});
+  var sd=document.getElementById('f-dest');
+  DESTINOS.forEach(function(d){sd.innerHTML+='<option value="'+d.codigo+'">'+d.nome+'</option>';});
+  var sc=document.getElementById('f-comp');
+  COMPRADORES.forEach(function(c){sc.innerHTML+='<option value="'+c.nome+'">'+c.nome+'</option>';});
+})();
+
+// ─────────────────────────────────────────────────────────────────
+// VIEW SWITCHER
+// ─────────────────────────────────────────────────────────────────
+function showView(v){
+  ACTIVE_VIEW=v;
+  document.querySelectorAll('.view-section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.rep-item').forEach(function(s){s.classList.remove('active');});
+  var sec=document.getElementById('view-'+v);
+  if(sec)sec.classList.add('active');
+  var nav=document.getElementById('nav-'+v);
+  if(nav)nav.classList.add('active');
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// BADGE HELPER
+// ─────────────────────────────────────────────────────────────────
+function badge(s){
+  var cls='b-pend';
+  if(s==='Aprovado')cls='b-aprov';
+  else if(s==='Em análise')cls='b-anali';
+  else if(s==='Recusado')cls='b-recus';
+  else if(s==='Ativo')cls='b-ativo';
+  else if(s==='Inativo')cls='b-inat';
+  return '<span class="badge '+cls+'">'+s+'</span>';
+}
+function fmtDate(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+
+// ─────────────────────────────────────────────────────────────────
+// TABLE RENDER ENGINE (pagination + search)
+// ─────────────────────────────────────────────────────────────────
+var TBL_DATA={};
+var PAGE_SIZE=15;
+function renderTable(key,rows,cntId,footId,pagesId){
+  TBL_DATA[key]=rows;
+  PAGE_STATE[key]=PAGE_STATE[key]||1;
+  document.getElementById(cntId).textContent=rows.length+' registros';
+  _renderPage(key,PAGE_STATE[key],footId,pagesId);
+}
+function _renderPage(key,page,footId,pagesId){
+  var rows=TBL_DATA[key]||[];
+  var q=(document.querySelector('#tbl-'+key).closest('.table-card').querySelector('.tbl-search')||{}).value||'';
+  if(q){
+    var ql=q.toLowerCase();
+    rows=rows.filter(function(r){return r.join('|').toLowerCase().includes(ql);});
+  }
+  var total=rows.length;
+  var pages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  page=Math.min(page,pages);
+  PAGE_STATE[key]=page;
+  var slice=rows.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);
+  var tb=document.getElementById('tbody-'+key);
+  tb.innerHTML=slice.map(function(r){
+    return '<tr>'+r.map(function(c){return'<td>'+c+'</td>';}).join('')+'</tr>';
+  }).join('')||'<tr><td colspan="20" class="empty-state"><div class="empty-icon">📭</div><div>Nenhum registro encontrado</div></td></tr>';
+  document.getElementById(footId).textContent='Mostrando '+(total===0?0:(page-1)*PAGE_SIZE+1)+'–'+Math.min(page*PAGE_SIZE,total)+' de '+total;
+  var pb=document.getElementById(pagesId);
+  pb.innerHTML='';
+  for(var i=1;i<=pages;i++){
+    pb.innerHTML+='<button class="pbn'+(i===page?' active':'')+'" onclick="goPage(\''+key+'\','+i+',\''+footId+'\',\''+pagesId+'\')">'+i+'</button>';
+  }
+}
+function goPage(key,page,footId,pagesId){PAGE_STATE[key]=page;_renderPage(key,page,footId,pagesId);}
+function tblSearch(tblId,q){
+  var key=tblId.replace('tbl-','');
+  PAGE_STATE[key]=1;
+  _renderPage(key,1,'foot-'+key,'pages-'+key);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SORT
+// ─────────────────────────────────────────────────────────────────
+function sortTable(tblId,col){
+  var key=tblId.replace('tbl-','');
+  var data=TBL_DATA[key]||[];
+  var cur=SORT_STATE[key];
+  var asc=(cur&&cur.col===col)?!cur.asc:true;
+  SORT_STATE[key]={col:col,asc:asc};
+  data.sort(function(a,b){
+    var av=a[col]||'',bv=b[col]||'';
+    av=av.replace(/<[^>]+>/g,''); bv=bv.replace(/<[^>]+>/g,'');
+    return asc?av.localeCompare(bv,undefined,{numeric:true}):bv.localeCompare(av,undefined,{numeric:true});
+  });
+  TBL_DATA[key]=data;
+  document.querySelectorAll('#'+tblId+' th').forEach(function(th,i){th.classList.remove('sort-asc','sort-desc');if(i===col)th.classList.add(asc?'sort-asc':'sort-desc');});
+  _renderPage(key,1,'foot-'+key,'pages-'+key);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER ALL VIEWS
+// ─────────────────────────────────────────────────────────────────
+var CHARTS={};
+function renderAll(){
+  var solic=filteredSolic();
+  if(ACTIVE_VIEW==='dashboard') renderDashboard(solic);
+  if(ACTIVE_VIEW==='usuarios')  renderUsuarios(solic);
+  if(ACTIVE_VIEW==='unidades')  renderUnidades(solic);
+  if(ACTIVE_VIEW==='destino')   renderDestino(solic);
+  if(ACTIVE_VIEW==='por-usuario')  renderPorUsuario(solic);
+  if(ACTIVE_VIEW==='por-destino')  renderPorDestino(solic);
+  if(ACTIVE_VIEW==='prod-destino') renderProdDestino(solic);
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────
+function renderDashboard(solic){
+  var total=solic.length;
+  var aprov=solic.filter(function(s){return s.status==='Aprovado';}).length;
+  var pend= solic.filter(function(s){return s.status==='Pendente';}).length;
+  var recus=solic.filter(function(s){return s.status==='Recusado';}).length;
+  var anali=solic.filter(function(s){return s.status==='Em análise';}).length;
+
+  document.getElementById('kpi-row').innerHTML=
+    kpiCard('Total Solicitações','k-green',total,'📋','Período selecionado')+
+    kpiCard('Aprovadas',         'k-blue', aprov,'✅',Math.round(aprov/Math.max(total,1)*100)+'% do total')+
+    kpiCard('Pendentes',         'k-orange',pend,'⏳',anali+' em análise')+
+    kpiCard('Recusadas',         'k-red',  recus,'❌',Math.round(recus/Math.max(total,1)*100)+'% do total');
+
+  // Status doughnut
+  buildChart('chart-status','doughnut',
+    ['Aprovado','Em análise','Pendente','Recusado'],
+    [aprov,anali,pend,recus],
+    ['#009B77','#1F75BB','#E07B3A','#e05252'],
+    {plugins:{legend:{position:'right'}}}
+  );
+
+  // Monthly bar
+  var months=['Jan','Fev','Mar','Abr','Mai'];
+  var mVals=months.map(function(_,i){
+    var m=String(i+1).padStart(2,'0');
+    return solic.filter(function(s){return s.data&&s.data.startsWith('2026-'+m);}).length;
+  });
+  buildChart('chart-mensal','bar',months,mVals,['#009B77','#009B77','#009B77','#009B77','#009B77'],
+    {plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  );
+
+  // Top unidades
+  var uMap={};
+  solic.forEach(function(s){uMap[s.unidade]=(uMap[s.unidade]||0)+1;});
+  var uTop=Object.entries(uMap).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+  buildChart('chart-unidades','bar',
+    uTop.map(function(e){return e[0].replace('APPA SERVICOS TEMPORARIOS','APPA').replace('AGGE SERVICOS','AGGE').substring(0,18)+'…';}),
+    uTop.map(function(e){return e[1];}),
+    Array(uTop.length).fill('#1F75BB'),
+    {plugins:{legend:{display:false}},indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}
+  );
+
+  // Categorias pie
+  var catMap={};
+  solic.forEach(function(s){s.produtos.forEach(function(p){catMap[p.cat]=(catMap[p.cat]||0)+p.qtd;});});
+  var catTop=Object.entries(catMap).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+  var colors=['#009B77','#1F75BB','#E07B3A','#e05252','#4ecb8d','#7a8899'];
+  buildChart('chart-categorias','doughnut',
+    catTop.map(function(e){return e[0];}),
+    catTop.map(function(e){return e[1];}),
+    colors,
+    {plugins:{legend:{position:'right'}}}
+  );
+
+  // Top destinos
+  var dMap={};
+  solic.forEach(function(s){dMap[s.destino]=(dMap[s.destino]||0)+1;});
+  var dTop=Object.entries(dMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  buildChart('chart-destinos','bar',
+    dTop.map(function(e){return e[0];}),
+    dTop.map(function(e){return e[1];}),
+    Array(dTop.length).fill('#E07B3A'),
+    {plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  );
+}
+function kpiCard(label,cls,val,icon,sub){
+  return '<div class="kpi-card '+cls+'"><div class="kpi-label">'+label+'</div><div class="kpi-val">'+val+'</div><div class="kpi-sub">'+sub+'</div><div class="kpi-icon">'+icon+'</div></div>';
+}
+function buildChart(id,type,labels,data,colors,opts){
+  if(CHARTS[id]){CHARTS[id].destroy();}
+  var ctx=document.getElementById(id);
+  if(!ctx)return;
+  var cfg={type:type,data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderColor:type==='line'?colors[0]:'transparent',fill:false,tension:.4,borderWidth:type==='bar'?0:2}]},options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true}}},opts||{})};
+  CHARTS[id]=new Chart(ctx,cfg);
+}
+
+// ── USUÁRIOS ──────────────────────────────────────────────────
+function renderUsuarios(solic){
+  var rows=USUARIOS_LIST.map(function(u){
+    var mine=solic.filter(function(s){return s.solicitanteId===u.id;});
+    var aprov=mine.filter(function(s){return s.status==='Aprovado';}).length;
+    var pend= mine.filter(function(s){return s.status==='Pendente'||s.status==='Em análise';}).length;
+    return [u.id,u.nome,u.email,u.perfil,mine.length,aprov,pend,badge('Ativo')];
+  });
+  renderTable('usuarios',rows,'cnt-usuarios','foot-usuarios','pages-usuarios');
+}
+
+// ── UNIDADES ──────────────────────────────────────────────────
+function renderUnidades(solic){
+  var rows=UNIDADES.map(function(u){
+    var mine=solic.filter(function(s){return s.unidCodigo===u.codigo;});
+    var aprov=mine.filter(function(s){return s.status==='Aprovado';}).length;
+    var pend= mine.filter(function(s){return s.status==='Pendente';}).length;
+    var recus=mine.filter(function(s){return s.status==='Recusado';}).length;
+    return [u.codigo,u.nome,mine.length,aprov,pend,recus,badge('Ativo')];
+  });
+  renderTable('unidades',rows,'cnt-unidades','foot-unidades','pages-unidades');
+}
+
+// ── DESTINO ───────────────────────────────────────────────────
+function renderDestino(solic){
+  var rows=DESTINOS.map(function(d){
+    var mine=solic.filter(function(s){return s.destCodigo===d.codigo;});
+    var aprov=mine.filter(function(s){return s.status==='Aprovado';}).length;
+    var anali=mine.filter(function(s){return s.status==='Em análise';}).length;
+    var pend= mine.filter(function(s){return s.status==='Pendente';}).length;
+    var recus=mine.filter(function(s){return s.status==='Recusado';}).length;
+    return [d.codigo,d.nome,mine.length,aprov,anali,pend,recus,badge('Ativo')];
+  });
+  renderTable('destino',rows,'cnt-destino','foot-destino','pages-destino');
+}
+
+// ── LANÇ. POR USUÁRIO ─────────────────────────────────────────
+function renderPorUsuario(solic){
+  var rows=solic.map(function(s){
+    return [s.numero,fmtDate(s.data),s.solicitante,s.unidade,s.destino,s.comprador,s.itens,badge(s.status)];
+  });
+  renderTable('por-usuario',rows,'cnt-por-usuario','foot-por-usuario','pages-por-usuario');
+}
+
+// ── LANÇ. POR DESTINO ─────────────────────────────────────────
+function renderPorDestino(solic){
+  var rows=solic.map(function(s){
+    return [s.numero,fmtDate(s.data),s.destino,s.solicitante,s.unidade,s.comprador,s.itens,badge(s.status)];
+  });
+  renderTable('por-destino',rows,'cnt-por-destino','foot-por-destino','pages-por-destino');
+}
+
+// ── PRODUTO × DESTINO ─────────────────────────────────────────
+function renderProdDestino(solic){
+  var map={};
+  solic.forEach(function(s){
+    s.produtos.forEach(function(p){
+      var key=p.codigo+'|'+s.destino;
+      if(!map[key]) map[key]={codigo:p.codigo,nome:p.nome,cat:p.cat,unid:p.unid,destino:s.destino,qtd:0,n:0,last:s.data};
+      map[key].qtd+=p.qtd;
+      map[key].n++;
+      if(s.data>map[key].last) map[key].last=s.data;
+    });
+  });
+  var rows=Object.values(map).sort(function(a,b){return b.qtd-a.qtd;}).map(function(r){
+    return [r.codigo,r.nome,r.cat,r.unid,r.destino,r.qtd,r.n,fmtDate(r.last)];
+  });
+  renderTable('prod-destino',rows,'cnt-prod-destino','foot-prod-destino','pages-prod-destino');
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EXCEL EXPORT (SheetJS)
+// ─────────────────────────────────────────────────────────────────
+var EXCEL_HEADERS={
+  'usuarios':     ['ID','Nome','E-mail','Perfil','Solicitações','Aprovadas','Pendentes','Situação'],
+  'unidades':     ['Código','Nome','Total Solicit.','Aprovadas','Pendentes','Recusadas','Situação'],
+  'destino':      ['Código','Destino','Total Solicit.','Aprovadas','Em análise','Pendentes','Recusadas','Situação'],
+  'por-usuario':  ['Nº','Data','Solicitante','Unidade','Destino','Comprador','Itens','Status'],
+  'por-destino':  ['Nº','Data','Destino','Solicitante','Unidade','Comprador','Itens','Status'],
+  'prod-destino': ['Código','Produto','Categoria','Unid.','Destino','Qtd Total','Solicitações','Último Lanç.']
+};
+function stripHtml(s){return String(s).replace(/<[^>]+>/g,'');}
+function exportExcel(key){
+  var data=TBL_DATA[key];
+  if(!data||!data.length){showToast('Nenhum dado para exportar');return;}
+  var headers=EXCEL_HEADERS[key]||[];
+  var wsData=[headers].concat(data.map(function(row){return row.map(stripHtml);}));
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(wsData);
+  // column widths
+  ws['!cols']=headers.map(function(){return{wch:22};});
+  XLSX.utils.book_append_sheet(wb,ws,'Relatório');
+  var fname='relatorio-'+key+'-'+new Date().toISOString().slice(0,10)+'.xlsx';
+  XLSX.writeFile(wb,fname);
+  showToast('📥 Exportado: '+fname);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────────────────────────
+var toastTimer;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INIT — carrega dados do banco MySQL
+// ─────────────────────────────────────────────────────────────────
+async function initRelatorios() {
+  if (typeof Session !== 'undefined' && !Session.get()) {
+    window.location.href = 'login.html'; return;
+  }
+
+  try {
+    var periodo = (document.getElementById('f-period') || {}).value || '';
+    var res = await Relatorios.geral(periodo);
+    if (res && res.ok) {
+      // Constrói ALL_SOLIC a partir do array "recentes" do dashboard
+      ALL_SOLIC = (res.data.recentes || []).map(function(s) {
+        return {
+          id: 0,
+          numero: '#' + s.numero,
+          data: s.data_solicitacao,
+          solicitante: s.solicitante,
+          unidade: '',
+          destino: s.destino,
+          comprador: '',
+          status: s.status,
+          itens: 0,
+          produtos: [],
+        };
+      });
+      renderAll();
+    }
+  } catch(e) {
+    console.error('Erro ao carregar relatórios:', e);
+    showToast('Erro ao carregar dados do servidor.');
+    renderAll();
+  }
+}
+
+// Recarrega ao mudar filtros
+['f-period','f-status','f-view'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('change', initRelatorios);
+});
+
+initRelatorios();
+</script>
+<script src="backend/portal-api.js"></script>
+</body>
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Compras — Menu Inicial</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f3f5;
+    --surface: #ffffff;
+    --surface2: #f4f7f9;
+    --border: #dde3ea;
+    --accent: #009B77;
+    --accent2: #E07B3A;
+    --accent3: #1F75BB;
+    --gray: #6D6E71;
+    --text: #1a2535;
+    --muted: #7a8899;
+    --danger: #e05252;
+    --success: #4ecb8d;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #ffffff;
+    border-bottom: 3px solid var(--accent);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-logo-icon svg { width: 20px; height: 20px; fill: #fff; }
+  .header-brand {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+  .header-brand span { color: var(--accent); }
+  .header-badge {
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .notif-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+    transition: color .15s;
+  }
+  .notif-btn:hover { color: var(--text); }
+  .notif-dot {
+    position: absolute;
+    top: 0; right: 0;
+    width: 8px; height: 8px;
+    background: var(--danger);
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 5px 14px 5px 6px;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .user-pill:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,155,119,.1); }
+  .avatar {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 12px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .user-info-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .user-info-role {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .user-chevron {
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* ── PAGE BODY ── */
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 28px 60px;
+  }
+
+  /* ── WELCOME BANNER ── */
+  .welcome-banner {
+    background: linear-gradient(135deg, #009B77 0%, #007A5E 50%, #1F75BB 100%);
+    border-radius: 16px;
+    padding: 30px 36px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,155,119,.25);
+  }
+  .welcome-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,.07);
+    border-radius: 50%;
+  }
+  .welcome-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: 120px;
+    width: 160px; height: 160px;
+    background: rgba(255,255,255,.05);
+    border-radius: 50%;
+  }
+  .welcome-greeting {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,.75);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .welcome-name {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  .welcome-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,.7);
+    max-width: 460px;
+    line-height: 1.5;
+  }
+  .welcome-date {
+    position: absolute;
+    top: 30px; right: 36px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 10px;
+    padding: 10px 18px;
+    text-align: right;
+    backdrop-filter: blur(4px);
+  }
+  .welcome-date-day {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    color: #fff;
+    line-height: 1;
+  }
+  .welcome-date-label {
+    font-size: 11px;
+    color: rgba(255,255,255,.7);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .18s, transform .18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .stat-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,.09);
+    transform: translateY(-2px);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .stat-card.green::before  { background: var(--accent); }
+  .stat-card.blue::before   { background: var(--accent3); }
+  .stat-card.orange::before { background: var(--accent2); }
+  .stat-card.red::before    { background: var(--danger); }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 30px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card.green  .stat-value { color: var(--accent); }
+  .stat-card.blue   .stat-value { color: var(--accent3); }
+  .stat-card.orange .stat-value { color: var(--accent2); }
+  .stat-card.red    .stat-value { color: var(--danger); }
+  .stat-delta {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .stat-delta.up   { color: var(--success); }
+  .stat-delta.down { color: var(--danger); }
+  .stat-icon {
+    position: absolute;
+    bottom: 14px; right: 16px;
+    font-size: 28px;
+    opacity: .12;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── MODULE CARDS ── */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    text-decoration: none;
+    display: block;
+    color: var(--text);
+  }
+  .module-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .module-card.c-green::after  { background: linear-gradient(90deg,var(--accent),#00c9a7); }
+  .module-card.c-blue::after   { background: linear-gradient(90deg,var(--accent3),#36a7f5); }
+  .module-card.c-orange::after { background: linear-gradient(90deg,var(--accent2),#f5a843); }
+  .module-card.c-gray::after   { background: linear-gradient(90deg,#6D6E71,#9aa0a8); }
+
+  .module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.1);
+    border-color: transparent;
+  }
+  .module-card:hover::after { opacity: 1; }
+  .module-card:hover .module-arrow { opacity: 1; transform: translateX(0); }
+
+  .module-icon-wrap {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  .module-card.c-green  .module-icon-wrap { background: rgba(0,155,119,.12); }
+  .module-card.c-blue   .module-icon-wrap { background: rgba(31,117,187,.12); }
+  .module-card.c-orange .module-icon-wrap { background: rgba(224,123,58,.12); }
+  .module-card.c-gray   .module-icon-wrap { background: rgba(109,110,113,.1); }
+
+  .module-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .module-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .module-arrow {
+    font-size: 18px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all .2s;
+    display: inline-block;
+  }
+  .module-card.c-green  .module-arrow { color: var(--accent); }
+  .module-card.c-blue   .module-arrow { color: var(--accent3); }
+  .module-card.c-orange .module-arrow { color: var(--accent2); }
+  .module-card.c-gray   .module-arrow { color: var(--gray); }
+
+  .module-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .module-badge.pending {
+    background: rgba(224,123,58,.15);
+    color: var(--accent2);
+  }
+  .module-badge.new {
+    background: rgba(0,155,119,.13);
+    color: var(--accent);
+  }
+
+  /* ── BOTTOM GRID ── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+  }
+
+  /* ── RECENT REQUESTS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .card-action {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent3);
+    cursor: pointer;
+    background: none; border: none;
+    font-family: inherit;
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .card-action:hover { color: var(--accent); }
+
+  .req-list { padding: 0; }
+  .req-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background .13s;
+    cursor: pointer;
+  }
+  .req-item:last-child { border-bottom: none; }
+  .req-item:hover { background: var(--surface2); }
+  .req-num {
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 60px;
+  }
+  .req-info { flex: 1; min-width: 0; }
+  .req-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .req-meta {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+  }
+  .req-status {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+  .req-status.pendente   { background: rgba(224,123,58,.13); color: var(--accent2); }
+  .req-status.aprovado   { background: rgba(0,155,119,.13); color: var(--accent); }
+  .req-status.em-analise { background: rgba(31,117,187,.13); color: var(--accent3); }
+  .req-status.recusado   { background: rgba(224,82,82,.13); color: var(--danger); }
+  .req-date {
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    min-width: 68px;
+    text-align: right;
+  }
+
+  /* ── QUICK ACTIONS PANEL ── */
+  .quick-list { padding: 8px 0; }
+  .quick-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background .13s;
+    border-bottom: 1px solid var(--border);
+  }
+  .quick-item:last-child { border-bottom: none; }
+  .quick-item:hover { background: var(--surface2); }
+  .quick-item-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .quick-item-icon.green  { background: rgba(0,155,119,.12); }
+  .quick-item-icon.blue   { background: rgba(31,117,187,.12); }
+  .quick-item-icon.orange { background: rgba(224,123,58,.12); }
+  .quick-item-icon.red    { background: rgba(224,82,82,.1); }
+  .quick-item-text { flex: 1; }
+  .quick-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1px;
+  }
+  .quick-item-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .quick-item-chevron {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+  .page-footer a { color: var(--accent3); text-decoration: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .welcome-banner { animation: fadeUp .4s ease both; }
+  .stats-row      { animation: fadeUp .4s .08s ease both; }
+  .modules-grid   { animation: fadeUp .4s .16s ease both; }
+  .bottom-grid    { animation: fadeUp .4s .24s ease both; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="header-logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM4 5h16V4H4v1zm2-3h12V1H6v1zm12 9H6v2h12v-2z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-brand">Portal de <span>Compras</span></div>
+    </div>
+    <span class="header-badge">v2.0</span>
+  </div>
+
+  <div class="header-right">
+    <button class="notif-btn" title="Notificações">
+      🔔
+      <span class="notif-dot"></span>
+    </button>
+    <div class="user-pill">
+      <div class="avatar">JM</div>
+      <div>
+        <div class="user-info-name">João Mendes</div>
+        <div class="user-info-role">Solicitante</div>
+      </div>
+      <span class="user-chevron">▾</span>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- WELCOME BANNER -->
+  <div class="welcome-banner">
+    <div class="welcome-greeting">Bem-vindo de volta,</div>
+    <div class="welcome-name">João Mendes 👋</div>
+    <div class="welcome-sub">Aqui está um resumo das suas atividades. Acesse os módulos abaixo para gerenciar suas solicitações de compra.</div>
+    <div class="welcome-date">
+      <div class="welcome-date-day" id="today-day">—</div>
+      <div class="welcome-date-label" id="today-label">carregando...</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card green">
+      <div class="stat-label">Solicitações Abertas</div>
+      <div class="stat-value">12</div>
+      <div class="stat-delta up">↑ 3 esta semana</div>
+      <div class="stat-icon">📋</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Em Análise</div>
+      <div class="stat-value">5</div>
+      <div class="stat-delta">Aguardando aprovação</div>
+      <div class="stat-icon">🔍</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Aprovadas (mês)</div>
+      <div class="stat-value">28</div>
+      <div class="stat-delta up">↑ 12% vs mês anterior</div>
+      <div class="stat-icon">✅</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Recusadas (mês)</div>
+      <div class="stat-value">3</div>
+      <div class="stat-delta down">↑ 1 vs mês anterior</div>
+      <div class="stat-icon">❌</div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <div class="section-label">Módulos do sistema</div>
+  <div class="modules-grid">
+
+    <a class="module-card c-green" href="Portal%20de%20Pedido%20de%20Compras%20(v24).html">
+      <span class="module-badge new">Novo</span>
+      <div class="module-icon-wrap">🛒</div>
+      <div class="module-title">Nova Solicitação</div>
+      <div class="module-desc">Crie uma nova solicitação de compra selecionando produtos do catálogo.</div>
+      <span class="module-arrow">→</span>
+    </a>
+
+    <a class="module-card c-blue" href="minhas-solicitacoes%20(v1).html">
+      <span class="module-badge pending">5 pendentes</span>
+      <div class="module-icon-wrap">📄</div>
+      <div class="module-title">Minhas Solicitações</div>
+      <div class="module-desc">Acompanhe o status de todas as suas solicitações em andamento.</div>
+      <span class="module-arrow">→</span>
+    </a>
+
+    <a class="module-card c-orange" href="relatorios.html">
+      <div class="module-icon-wrap">📊</div>
+      <div class="module-title">Relatórios</div>
+      <div class="module-desc">Acesse relatórios de solicitações por usuário, destino e período.</div>
+      <span class="module-arrow">→</span>
+    </a>
+
+    <a class="module-card c-gray" href="Portal%20de%20Pedido%20de%20Compras%20(v24).html">
+      <div class="module-icon-wrap">⚙️</div>
+      <div class="module-title">Configurações</div>
+      <div class="module-desc">Gerencie usuários, unidades, produtos e tabelas do sistema.</div>
+      <span class="module-arrow">→</span>
+    </a>
+
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- RECENT REQUESTS -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Solicitações Recentes</span>
+        <a class="card-action" href="#">Ver todas →</a>
+      </div>
+      <div class="req-list">
+
+        <div class="req-item">
+          <span class="req-num">#0042</span>
+          <div class="req-info">
+            <div class="req-name">Material de escritório — Papelaria geral</div>
+            <div class="req-meta"><span>Almoxarifado Central</span><span>•</span><span>8 itens</span></div>
+          </div>
+          <span class="req-status em-analise">Em análise</span>
+          <span class="req-date">16/05/2026</span>
+        </div>
+
+        <div class="req-item">
+          <span class="req-num">#0041</span>
+          <div class="req-info">
+            <div class="req-name">Equipamentos de TI — Periféricos e cabos</div>
+            <div class="req-meta"><span>TI / Infraestrutura</span><span>•</span><span>3 itens</span></div>
+          </div>
+          <span class="req-status aprovado">Aprovado</span>
+          <span class="req-date">14/05/2026</span>
+        </div>
+
+        <div class="req-item">
+          <span class="req-num">#0039</span>
+          <div class="req-info">
+            <div class="req-name">Limpeza e higiene — Produtos de copa</div>
+            <div class="req-meta"><span>Serviços Gerais</span><span>•</span><span>12 itens</span></div>
+          </div>
+          <span class="req-status pendente">Pendente</span>
+          <span class="req-date">12/05/2026</span>
+        </div>
+
+        <div class="req-item">
+          <span class="req-num">#0037</span>
+          <div class="req-info">
+            <div class="req-name">Manutenção predial — Ferramentas diversas</div>
+            <div class="req-meta"><span>Manutenção</span><span>•</span><span>6 itens</span></div>
+          </div>
+          <span class="req-status recusado">Recusado</span>
+          <span class="req-date">08/05/2026</span>
+        </div>
+
+        <div class="req-item">
+          <span class="req-num">#0035</span>
+          <div class="req-info">
+            <div class="req-name">Segurança do trabalho — EPIs mensais</div>
+            <div class="req-meta"><span>RH / Segurança</span><span>•</span><span>9 itens</span></div>
+          </div>
+          <span class="req-status aprovado">Aprovado</span>
+          <span class="req-date">05/05/2026</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">⚡ Ações Rápidas</span>
+      </div>
+      <div class="quick-list">
+
+        <div class="quick-item" onclick="window.location.href='novo-pedido.html'">
+          <div class="quick-item-icon green">🛒</div>
+          <div class="quick-item-text">
+            <div class="quick-item-title">Nova Solicitação</div>
+            <div class="quick-item-sub">Abrir formulário de compra</div>
+          </div>
+          <span class="quick-item-chevron">›</span>
+        </div>
+
+        <div class="quick-item" onclick="window.location.href='solicitacoes.html'">
+          <div class="quick-item-icon blue">🔍</div>
+          <div class="quick-item-text">
+            <div class="quick-item-title">Consultar Solicitação</div>
+            <div class="quick-item-sub">Buscar por número ou status</div>
+          </div>
+          <span class="quick-item-chevron">›</span>
+        </div>
+
+        <div class="quick-item" onclick="window.location.href='relatorios.html'">
+          <div class="quick-item-icon orange">📊</div>
+          <div class="quick-item-text">
+            <div class="quick-item-title">Gerar Relatório</div>
+            <div class="quick-item-sub">Exportar dados do período</div>
+          </div>
+          <span class="quick-item-chevron">›</span>
+        </div>
+
+        <div class="quick-item" onclick="window.location.href='novo-pedido.html'">
+          <div class="quick-item-icon green">📦</div>
+          <div class="quick-item-text">
+            <div class="quick-item-title">Catálogo de Produtos</div>
+            <div class="quick-item-sub">Visualizar itens disponíveis</div>
+          </div>
+          <span class="quick-item-chevron">›</span>
+        </div>
+
+        <div class="quick-item" onclick="window.location.href='novo-pedido.html'">
+          <div class="quick-item-icon blue">👥</div>
+          <div class="quick-item-text">
+            <div class="quick-item-title">Gerenciar Usuários</div>
+            <div class="quick-item-sub">Cadastros e permissões</div>
+          </div>
+          <span class="quick-item-chevron">›</span>
+        </div>
+
+        <div class="quick-item" onclick="window.location.href='login.html'">
+          <div class="quick-item-icon red">🚪</div>
+          <div class="quick-item-text">
+            <div class="quick-item-title">Sair do Sistema</div>
+            <div class="quick-item-sub">Encerrar sessão atual</div>
+          </div>
+          <span class="quick-item-chevron">›</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">
+    Portal de Solicitação de Compras &nbsp;·&nbsp; v2.0.0 &nbsp;·&nbsp;
+    Suporte: <a href="#">ti@suaempresa.com.br</a>
+  </div>
+
+</div>
+
+<script>
+  // Set today's date on the banner
+  (function() {
+    var days   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    var months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    var now = new Date();
+    document.getElementById('today-day').textContent   = now.getDate();
+    document.getElementById('today-label').textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  })();
+</script>
+<script src="backend/portal-api.js"></script>
+<script>
+(function() {
+  // Aguarda portal-api.js carregar e verifica sessão
+  var user = Session.get();
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  var nameEl = document.getElementById('user-name');
+  if (nameEl) nameEl.textContent = user.nome;
+})();
+</script>
+</body>
+</html>
